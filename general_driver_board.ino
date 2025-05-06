@@ -129,14 +129,13 @@ bool create_entities() {
   ak09918_open(AK09918_CONTINUOUS_50HZ);
 
   qmi8658_cfg_t qmi8658_cfg = {
-      .qmi8658_mode = qmi8658_mode_dual, // Set the QMI8658C mode to dual mode
-      .acc_scale = acc_scale_2g,         // Set the accelerometer scale to ±2g
-      .acc_odr =
-          acc_odr_250, // Set the accelerometer output data rate (ODR) to 8000Hz
-      .gyro_scale = gyro_scale_128dps, // Set the gyroscope scale to ±16 dps
-      .gyro_odr =
-          gyro_odr_500, // Set the gyroscope output data rate (ODR) to 8000Hz
+      .qmi8658_mode = qmi8658_mode_dual,
+      .acc_scale = acc_scale_2g,
+      .acc_odr = acc_odr_250,
+      .gyro_scale = gyro_scale_128dps,
+      .gyro_odr = gyro_odr_500,
   };
+
   qmi8658_open(&qmi8658_cfg);
 
   return true;
@@ -158,6 +157,7 @@ void destroy_entities() {
    * TODO : Make sue the name of publisher and subscriber are correct
    */
   rcl_publisher_fini(&mag_field_pub, &node);
+  rcl_publisher_fini(&imu_raw_pub, &node);
 }
 
 void setup() {

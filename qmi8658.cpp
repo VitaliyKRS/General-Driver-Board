@@ -154,6 +154,12 @@ qmi8658_result_t qmi8658_open(qmi8658_cfg_t *qmi8658_cfg) {
   qmi_ctx.acc_sensitivity = ACC_SCALE_SENSITIVITY_2G;
   qmi_ctx.gyro_scale = gyro_scale_16dps;
   qmi_ctx.gyro_sensitivity = GYRO_SCALE_SENSITIVITY_16DPS;
+
+  uint8_t ctrl1 = qmi8658_read(QMI8658_CTRL1);
+  ctrl1 &= ~(1 << 0); // clear bit0 = OSC_OFF = 0
+  qmi8658_write(QMI8658_CTRL1, ctrl1);
+  delay(1);
+
   // Probe WHO_AM_I
   int16_t id = qmi8658_read(QMI8658_WHO_AM_I);
   if (id < 0)
