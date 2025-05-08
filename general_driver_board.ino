@@ -11,6 +11,7 @@
 #include <rclc/executor.h>
 #include <rclc/rclc.h>
 #include <rmw_microros/rmw_microros.h>
+#include <rosidl_runtime_c/string_functions.h>
 #include <stdio.h>
 
 #include <sensor_msgs/msg/imu.h>
@@ -18,7 +19,6 @@
 
 #define S_SCL 33
 #define S_SDA 32
-
 /*
  * Helper functions to help reconnect
  */
@@ -50,6 +50,7 @@ rcl_node_t node;
 rcl_timer_t timer;
 rclc_executor_t executor;
 rcl_allocator_t allocator;
+rcl_clock_t clock_;
 
 rcl_publisher_t mag_field_pub;
 rcl_publisher_t imu_raw_pub;
@@ -61,17 +62,20 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    mag_field_msg.header.stamp.sec = (int32_t)(last_call_time / 1000000000LL);
-    mag_field_msg.header.stamp.nanosec =
-        (uint32_t)(last_call_time % 1000000000LL);
-    imu_raw_msg.header.stamp.sec = (int32_t)(last_call_time / 1000000000LL);
-    imu_raw_msg.header.stamp.nanosec =
-        (uint32_t)(last_call_time % 1000000000LL);
+    rcl_time_point_value_t now;
+    rcl_clock_get_now(&clock_, &now);
+    mag_field_msg.header.stamp.sec = now / 1000000000ULL;
+    mag_field_msg.header.stamp.nanosec = now % 1000000000ULL;
+
+    rosidl_runtime_c__String__assign(&mag_field_msg.header.frame_id,
+                                     "imu_link");
+    imu_raw_msg.header.stamp.sec = now / 1000000000LL;
+    imu_raw_msg.header.stamp.nanosec = now % 1000000000LL;
+    rosidl_runtime_c__String__assign(&imu_raw_msg.header.frame_id, "imu_link");
     rcl_publish(&mag_field_pub, &mag_field_msg, NULL);
     rcl_publish(&imu_raw_pub, &imu_raw_msg, NULL);
   }
 }
-
 /*
    Create object (Initialization)
 */
@@ -89,7 +93,7 @@ bool create_entities() {
   rcl_init_options_set_domain_id(&init_options, domain_id);
   rclc_support_init_with_options(&support, 0, NULL, &init_options, &allocator);
   rclc_node_init_default(&node, node_name, ns, &support);
-
+  rcl_clock_init(RCL_STEADY_TIME, &clock_, &allocator);
   /*
    * Init publisher and subscriber
    */
