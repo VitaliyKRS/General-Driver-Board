@@ -11,7 +11,7 @@ void IRAM_ATTR isr_encB() { enc_count_B += digitalRead(B_ENC_A) ? +1 : -1; }
 static const float DUTY_DEADBAND = 0.05f;   
 static const int   MIN_EFFECTIVE = 35;       
 
-static const float kL_f = 1.000f, kR_f = 0.95925f; // forward
+static const float kL_f = 1.000f, kR_f = 0.95f; // forward
 static const float kL_r = 1.000f, kR_r = 0.995f; // reverse
 
 void init_motor_ctrl() {

@@ -76,14 +76,14 @@ rcl_timer_t odom_timer;
 rcl_publisher_t mag_field_pub;
 rcl_publisher_t imu_raw_pub;
 rcl_publisher_t odom_pub;
+// Debug publishers
 rcl_publisher_t right_ticks_pub;
-
 rcl_publisher_t left_ticks_pub;
-
 
 sensor_msgs__msg__MagneticField mag_field_msg;
 sensor_msgs__msg__Imu imu_raw_msg;
 nav_msgs__msg__Odometry odom_msg;
+// Debug messages
 std_msgs__msg__Int32 right_ticks_msg;
 std_msgs__msg__Int32 left_ticks_msg;
 
@@ -135,8 +135,6 @@ void odom_timer_callback(rcl_timer_t *timer, int64_t last_call_time)
     odom_y     += ds * sinf(mid_theta);
     odom_theta += dtheta;
 
-
-
     odom_msg.pose.pose.position.x = odom_x;
     odom_msg.pose.pose.position.y = odom_y;
     odom_msg.pose.pose.position.z = 0.0f;
@@ -150,13 +148,13 @@ void odom_timer_callback(rcl_timer_t *timer, int64_t last_call_time)
     odom_msg.twist.twist.linear.x  = ds     / dt;
     odom_msg.twist.twist.angular.z = dtheta / dt;
    
-    // 8) publish
+
     rcl_publish(&odom_pub, &odom_msg, NULL);
 
-        right_ticks_msg.data += deltaA;
+    // Debug fields
+    right_ticks_msg.data += deltaA;
     left_ticks_msg.data += deltaB;
     rcl_publish(&right_ticks_pub, &right_ticks_msg, NULL);
-
     rcl_publish(&left_ticks_pub, &left_ticks_msg, NULL);
   }
 }
